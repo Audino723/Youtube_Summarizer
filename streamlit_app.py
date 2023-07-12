@@ -6,11 +6,9 @@ from langchain.chains.summarize import load_summarize_chain
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import openai
 import os
-from dotenv import load_dotenv
 
 # Load Key
-load_dotenv()
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_API_KEY = st.secrets.OPENAI_API_KEY
 
 st.title('🦜🔗 Youtube Summarizer')
 
