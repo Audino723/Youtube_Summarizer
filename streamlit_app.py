@@ -3,6 +3,7 @@ from langchain.llms import OpenAI
 from langchain.document_loaders import YoutubeLoader
 from langchain.llms import OpenAI
 from langchain.chains.summarize import load_summarize_chain
+from langchain.callbacks import get_openai_callback
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import openai
 import os
@@ -13,7 +14,7 @@ OPENAI_API_KEY = st.secrets.OPENAI_API_KEY
 st.title('🦜🔗 Youtube Summarizer')
 
 def generate_response(input_text):
-  llm = OpenAI(temperature=0.7, openai_api_key=OPENAI_API_KEY)
+  llm = OpenAI(model_name="gpt3", temperature=0.7, openai_api_key=OPENAI_API_KEY)
   st.info(llm(input_text))
 
 def generate_transcript(url):
@@ -28,9 +29,15 @@ def generate_summary(transcript):
     llm = OpenAI(
         temperature=0,
         openai_api_key=OPENAI_API_KEY)
+    
+    with get_openai_callback() as cb:
+      chain = load_summarize_chain(llm, chain_type="stuff", verbose=False)
+      summarized = chain.run(transcript)
 
-    chain = load_summarize_chain(llm, chain_type="stuff", verbose=False)
-    summarized = chain.run(transcript)
+    print(f"Total Tokens: {cb.total_tokens}")
+    print(f"Prompt Tokens: {cb.prompt_tokens}")
+    print(f"Completion Tokens: {cb.completion_tokens}")
+    print(f"Total Cost (USD): ${cb.total_cost}")
     
     return summarized
 
